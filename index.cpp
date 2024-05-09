@@ -7,8 +7,21 @@
 #include <sys/types.h>
 #include <iomanip>
 #include <ctime>
+#include <sstream>
+#include <locale>
 
 using namespace std;
+
+time_t makeTime(string date)
+{
+    tm t = {};
+    istringstream ss(date);
+
+    ss >> get_time(&t, "%Y-%m-%d");
+    put_time(&t, "%c");
+    time_t epoch = mktime(&t);
+    return epoch;
+}
 
 class File
 {
@@ -153,9 +166,11 @@ public:
 
     void addFactor(Factor f);
 
-    void printOrders(string customerName, string date);
+    void printFactorOrders(string customerName, string date);
 
     void displayOrders();
+    
+    void transactionBalance(time_t start, time_t end);
 };
 
 void Manager::addProduct(Product p)
@@ -189,10 +204,6 @@ void Manager::displayProducts()
     {
         cerr << "Unable to open file" << endl;
     }
-
-    // for (auto& p : products) {
-    //     cout << " Name: " << p.getName() << ", Quantity: " << p.getQuantity() << ", Price: " << p.getPrice() << endl;
-    // }
 }
 
 bool Manager::checkProduct(string name)
@@ -209,7 +220,7 @@ bool Manager::checkProduct(string name)
             getline(ss, n, ',');
             getline(ss, q, ',');
             getline(ss, p, ',');
-            cout << name << "\t" << n << "\t";
+            
             if (name == n)
                 return true;
         }
@@ -273,16 +284,6 @@ void Manager::updateProduct(string name, string new_name, int new_quantity, doub
     temp.close();
     remove("products.txt");
     rename("temp.txt", "products.txt");
-    // for (auto& o : orders)
-    // {
-    //  if (o.orderDate.year >= year && o.orderDate.year <= year2 &&
-    //    o.orderDate.month >= month && o.orderDate.month <= month2 &&
-    //      o.orderDate.day >= day && o.orderDate.day <= day2)
-    //{
-    //    total += o.getTotalPrice();
-    //  }
-    //}
-    // return total;
 }
 
 void Manager::addOrder(Order o)
@@ -361,7 +362,7 @@ void Manager::addFactor(Factor f)
     myFile.close();
 }
 
-void Manager::printOrders(string customerName, string date)
+void Manager::printFactorOrders(string customerName, string date)
 {
     ifstream myFile("orders.txt");
     string line;
@@ -413,6 +414,40 @@ void Manager::displayOrders()
     }
 }
 
+void Manager::transactionBalance(time_t start, time_t end)
+{
+    ifstream myFile("orders.txt");
+    string line;
+    unsigned int intS = (unsigned int)start;
+    unsigned int intE = (unsigned int)end;
+
+    if (myFile.is_open())
+    {
+        while (getline(myFile, line))
+        {
+            stringstream ss(line);
+            string pn,cn,d,q,p;
+            getline(ss, pn, ',');
+            getline(ss, cn, ',');
+            getline(ss, d, ',');
+            getline(ss, q, ',');
+            getline(ss, p, ',');
+            
+            time_t dEpoch = makeTime(d);
+            unsigned int intO = (unsigned int)dEpoch;
+
+            if (intO > intS && intO < intE) {
+                cout << "ProductName: " << pn << setw(30) << "CustomerName: " << cn << setw(30) << "Date: " << d << setw(30) << "Quantity: " << q << setw(30) << "Price: " << p << endl;
+            }
+        }
+        myFile.close();
+    }
+    else
+    {
+        cerr << "Unable to open file" << endl;
+    }
+}
+
 void load(string name)
 {
     ifstream file(name);
@@ -427,13 +462,193 @@ void load(string name)
 int main()
 {
     Manager m;
+    string sMonth, sDay;
     time_t now = time(0);
     tm *ltm = localtime(&now);
     int year = 1900 + ltm->tm_year;
     int month = 1 + ltm->tm_mon;
+    switch (month) {
+    case 1:
+        sMonth = "01";
+        break;
+
+    case 2:
+        sMonth = "02";
+        break;
+
+    case 3:
+        sMonth = "03";
+        break;
+
+    case 4:
+        sMonth = "04";
+        break;
+
+    case 5:
+        sMonth = "05";
+        break;
+
+    case 6:
+        sMonth = "06";
+        break;
+
+    case 7:
+        sMonth = "07";
+        break;
+
+    case 8:
+        sMonth = "08";
+        break;
+
+    case 9:
+        sMonth = "09";
+        break;
+
+    case 10:
+        sMonth = "10";
+        break;
+
+    case 11:
+        sMonth = "11";
+        break;
+
+    case 12:
+        sMonth = "12";
+        break;
+    }
+    
     int day = ltm->tm_mday;
-    string date = to_string(year) + "/" + to_string(month) + "/" + to_string(day);
-    int intNow = stoi(to_string(year) + to_string(month) + to_string(day));
+    switch (day) {
+    case 1:
+        sDay = "01";
+        break;
+
+    case 2:
+        sDay = "02";
+        break;
+
+    case 3:
+        sDay = "03";
+        break;
+
+    case 4:
+        sDay = "04";
+        break;
+
+    case 5:
+        sDay = "05";
+        break;
+
+    case 6:
+        sDay = "06";
+        break;
+
+    case 7:
+        sDay = "07";
+        break;
+
+    case 8:
+        sDay = "08";
+        break;
+
+    case 9:
+        sDay = "09";
+        break;
+
+    case 10:
+        sDay = "10";
+        break;
+
+    case 11:
+        sDay = "11";
+        break;
+
+    case 12:
+        sDay = "12";
+        break;
+
+    case 13:
+        sDay = "13";
+        break;
+
+    case 14:
+        sDay = "14";
+        break;
+
+    case 15:
+        sDay = "15";
+        break;
+
+    case 16:
+        sDay = "16";
+        break;
+
+    case 17:
+        sDay = "17";
+        break;
+
+    case 18:
+        sDay = "18";
+        break;
+
+    case 19:
+        sDay = "19";
+        break;
+
+    case 20:
+        sDay = "20";
+        break;
+
+    case 21:
+        sDay = "21";
+        break;
+
+    case 22:
+        sDay = "22";
+        break;
+
+    case 23:
+        sDay = "23";
+        break;
+
+    case 24:
+        sDay = "24";
+        break;
+
+    case 25:
+        sDay = "25";
+        break;
+
+    case 26:
+        sDay = "26";
+        break;
+
+    case 27:
+        sDay = "27";
+        break;
+
+    case 28:
+        sDay = "28";
+        break;
+
+    case 29:
+        sDay = "29";
+        break;
+
+    case 30:
+        sDay = "30";
+        break;
+
+    case 31:
+        sDay = "31";
+        break;
+
+    case 32:
+        sDay = "32";
+        break;
+    }
+
+    string date = to_string(year) + "-" + sMonth + "-" + sDay;
 
     load("products.txt");
     load("orders.txt");
@@ -442,7 +657,7 @@ int main()
     while(true)
     {
         int input;
-        cout << "what do you want ? \n" << "1 => storeProduct \t 2 => updateProduct \t 3 => indexProducts \n" << "4 => storeOrder \t 5 => indexOrders \t 6 => factor \t 7 => transaction balance \n" << "Press any other thing to exit" << endl ;
+        cout << endl << "what do you want ? \n" << "1 => storeProduct \t 2 => updateProduct \t 3 => indexProducts \n" << "4 => storeOrder \t 5 => indexOrders \t 6 => factor \t 7 => transaction balance \n" << "Press any other thing to exit" << endl ;
         cin >> input;
 
         if(input == 1)
@@ -471,12 +686,12 @@ int main()
 
             m.displayProducts();
 
-            cout << "Enter name of product you want to update : ";
+            cout << "Enter name of product you want to update :\n";
             cin.ignore();
             getline(cin,name);
             if (!m.checkProduct(name))
             {
-                cout << "this name not exist.";
+                cout << "There is no product with this name\n";
                 continue;
             }
             cout << "New name : ";
@@ -511,13 +726,12 @@ int main()
 
             cout << "productName : ";
             cin >> productName;
-            Product p = m.findProduct(productName);
-            if(!m.checkProduct(productName))
+            while (!m.checkProduct(productName))
             {
                 cout << "Enter a valid product name : ";
                 cin >> productName;
-                p = m.findProduct(productName);
             }
+            Product p = m.findProduct(productName);
 
             cout << "quantity : ";
             cin >> quantity;
@@ -546,12 +760,12 @@ int main()
             cin >> cn;
             cout << "date of order : ";
             cin >> d;
-            if (!m.checkFactor(cn, d))
+            if (m.checkFactor(cn, d))
             {
                 Factor f = m.findFactor(cn, d);
                 cout << "CustomerName: " << f.getCustomerName() << setw(30) << "PhoneNumber: " << f.getPhoneNumber() << setw(15) << "Date: " << f.getDate() << setw(15) << "TotalPrice: " << f.getTotalPrice() << endl;
                 cout << "Orders :\n";
-                m.printOrders(f.getCustomerName(), f.getDate());
+                m.printFactorOrders(f.getCustomerName(), f.getDate());
             }
             else
             {
@@ -561,7 +775,34 @@ int main()
         }
         else if (input == 7)
         {
+            string sDate, eDate;
+            time_t start, end;
+            cout << "Enter start date(e.g. 2010-07-25) : ";
+            cin >> sDate;
 
+            if (sDate == "") {
+                time_t month = 30 * 24 * 60 * 60;
+                start = (makeTime(date) - month);
+            } else {
+                start = makeTime(sDate);
+                if (start == 0) {
+                    cout << "The start date is invalid\n";
+                    continue;
+                }
+            }
+
+            cout << "Enter end date(e.g. 2024-04-02) : ";
+            cin >> eDate;
+            if (eDate.empty()) {
+                eDate = date;
+            }
+            end = makeTime(eDate);
+            if (end == 0) {
+                cout << "The end date is invalid\n";
+                continue;
+            }
+
+            m.transactionBalance(start, end);
         }
         else
         {
